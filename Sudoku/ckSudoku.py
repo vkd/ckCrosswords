@@ -21,6 +21,8 @@ def load_sukoku():
     s = []
     for line in open("inputSudoku.txt"):
         s.append([c for c in line[:-1]])
+        if len(s) == 9:
+            return s
     return s
 
 
