@@ -1,5 +1,3 @@
-import copy
-
 EMPTY_VALUE = '.'
 
 
@@ -8,7 +6,6 @@ def print_sudoku(sudoku):
         print 'Sudoku is None'
         return
     for i in xrange(9):
-        # print sudoku[i]
         line = ''
         for j in xrange(9):
             line += sudoku[i][j]
@@ -27,41 +24,41 @@ def load_sukoku():
     return s
 
 
-def search_next_empty(sudoku):
-    for i in xrange(9):
-        for j in xrange(9):
+def search_next_empty(sudoku, row):
+    for i in xrange(row, 9):
+        for j in xrange(0, 9):
             if sudoku[i][j] == EMPTY_VALUE:
                 return (i, j)
+    return None, None
 
 
 def check_sudoku(sudoku, row, col):
     checked = set()
     for i in xrange(9):
         value = sudoku[row][i]
-        if value == '.':
+        if value == EMPTY_VALUE:
             continue
-        # print 'value =', value
         if value in checked:
             return False
         checked.add(value)
-    # print 'rows checked'
 
     checked = set()
     for i in xrange(9):
         value = sudoku[i][col]
-        if value == '.':
+        if value == EMPTY_VALUE:
             continue
         if value in checked:
             return False
         checked.add(value)
-    # print 'columns checked'
 
     def check_33(r, c, sudoku):
         checked = set()
+        row_start = r * 3
+        col_start = c * 3
         for i in xrange(3):
             for j in xrange(3):
-                value = sudoku[r * 3 + i][c * 3 + j]
-                if value == '.':
+                value = sudoku[row_start + i][col_start + j]
+                if value == EMPTY_VALUE:
                     continue
                 if value in checked:
                     return False
@@ -71,34 +68,25 @@ def check_sudoku(sudoku, row, col):
     ch_res = check_33(row / 3, col / 3, sudoku)
     if not ch_res:
         return False
-    # print 'cubes checked'
     return True
 
 
-def solve(sudoku):
-    empty_pnt = search_next_empty(sudoku)
-    if empty_pnt is None:
+def solve(sudoku, row, col):
+    r, c = search_next_empty(sudoku, row)
+    if r is None:
         return sudoku
 
-    s = copy.deepcopy(sudoku)
     for v in xrange(1, 10):
-        row = empty_pnt[0]
-        col = empty_pnt[1]
-        s[row][col] = str(v)
-        if row < 3:
-            print_sudoku(s)
-        if check_sudoku(s, row, col):
-            # print 'checked'
-            # print '------------------------------'
-            res = solve(s)
+        sudoku[r][c] = str(v)
+        if r < 2:
+            print_sudoku(sudoku)
+        if check_sudoku(sudoku, r, c):
+            res = solve(sudoku, r, c)
             if res is not None:
                 return res
-        else:
-            # print 'EMPTY_VALUE'
-            # print '------------------------------'
-            s[row][col] = EMPTY_VALUE
+        sudoku[r][c] = EMPTY_VALUE
     return None
 
 sudoku = load_sukoku()
-sudoku = solve(sudoku)
+sudoku = solve(sudoku, 0, 0)
 print_sudoku(sudoku)
